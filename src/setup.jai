@@ -9,24 +9,18 @@ DEBUG_MEMORY :: true;
 
 //
 
-/*
-WINDOW_WIDTH  :: 1536;
-WINDOW_HEIGHT :: 864;
+VIEWPORT_HEIGHT_IN_TILES :: 18;
+VIEWPORT_WIDTH_IN_TILES  :: 16;
+DESIRED_ASPECT_RATIO : float : cast(float)VIEWPORT_WIDTH_IN_TILES / VIEWPORT_HEIGHT_IN_TILES;
 
-PIXEL_WIDTH :: 256;
-PIXEL_HEIGHT :: 144;
-*/
+TILE_SIZE_IN_PIXELS :: 16;
 
-WINDOW_WIDTH  :: 1024;
-WINDOW_HEIGHT :: 1152;
+PIXEL_WIDTH :: VIEWPORT_WIDTH_IN_TILES * TILE_SIZE_IN_PIXELS;
+PIXEL_HEIGHT :: VIEWPORT_HEIGHT_IN_TILES * TILE_SIZE_IN_PIXELS;
 
-PIXEL_WIDTH :: 256;
-PIXEL_HEIGHT :: 288;
+DEFAULT_WINDOW_HEIGHT :: 900;
+DEFAULT_WINDOW_WIDTH  : s32 : cast(s32)(DEFAULT_WINDOW_HEIGHT * DESIRED_ASPECT_RATIO);
 
-VIEWPORT_WIDTH := 16;
-VIEWPORT_HEIGHT := 18;
-
-TILE_SIZE :: 16;
 
 //
 
@@ -56,10 +50,16 @@ menu : Menu;
 
 //
 
-window_width  : s32 = WINDOW_WIDTH;
-window_height : s32 = WINDOW_HEIGHT;
+window_height : s32 = DEFAULT_WINDOW_HEIGHT;
+window_width  : s32 = DEFAULT_WINDOW_WIDTH;
+
+viewport_height: s32 = DEFAULT_WINDOW_HEIGHT;
+viewport_width : s32 = cast(s32)(DEFAULT_WINDOW_HEIGHT * DESIRED_ASPECT_RATIO);
 
 fullscreen : bool;
+
+old_window_width  : s32 = DEFAULT_WINDOW_WIDTH;
+old_window_height : s32 = DEFAULT_WINDOW_HEIGHT;
 
 //
 
@@ -83,7 +83,7 @@ tweaks_path     :: ".";
 // Setup Function //////////////////////////////////////////////////////////////
 //
 
-setup :: () {
+setup_everything :: () {
     set_working_directory_to_base_folder();
 
     set_print_style_in_context();
@@ -107,6 +107,9 @@ setup :: () {
     if !tweaks_file_exists then log("No tweaks file found. Sticking to the defaults!\n");
 
     init_menus();
+
+    stop_music();
+    play_music("lonelyguy");
 }
 
 //
@@ -258,7 +261,7 @@ init_images :: () {
 
     // Spritesheets
     full_path := tprint("%/sheet.png", assets_path);
-    success = make_spritesheet(*rendering.spritesheet, full_path, TILE_SIZE);
+    success = make_spritesheet(*rendering.spritesheet, full_path, TILE_SIZE_IN_PIXELS);
     assert(success);
 }
 

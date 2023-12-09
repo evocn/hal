@@ -1,7 +1,7 @@
 # Tweaks file
 
 level 00
-fullscreen false
-sfx 0.25
-music 1   
+fullscreen true
+sfx 0   
+music 0   
 ambience 1   

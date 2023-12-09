@@ -56,7 +56,7 @@ render :: (guy: Guy, level: Level) {
 draw_game_state :: (guy: Guy, level: Level) {
     for tiles, col: level.columns {
         for tile, row: tiles {
-            draw_tile(tile.background, .{col, row} * TILE_SIZE, color=tile.color);
+            draw_tile(tile.background, .{col, row} * TILE_SIZE_IN_PIXELS, color=tile.color);
         }
     }
 
@@ -87,21 +87,21 @@ draw_guy :: (guy: Guy) {
 }
 
 draw_level_start :: (tile_index: Tile_Index) {
-    draw_tile(18, tile_index * TILE_SIZE, color=gray);
+    draw_tile(18, tile_index * TILE_SIZE_IN_PIXELS, color=gray);
 }
 
 draw_level_end :: (tile_index: Tile_Index) {
-    draw_tile(17, tile_index * TILE_SIZE, color=color_1);
+    draw_tile(17, tile_index * TILE_SIZE_IN_PIXELS, color=color_1);
 }
 
 //
 
 draw_wind_stream_tile :: (tile_index : Tile_Index, horizontal_flip : bool, vertical_flip : bool, color : Color) {
     if vertical_flip {
-        draw_tile(20, tile_index * TILE_SIZE, color=color, horizontal_flip=horizontal_flip);
+        draw_tile(20, tile_index * TILE_SIZE_IN_PIXELS, color=color, horizontal_flip=horizontal_flip);
     }
     else {
-        draw_tile(21, tile_index * TILE_SIZE, color=color, horizontal_flip=horizontal_flip);
+        draw_tile(21, tile_index * TILE_SIZE_IN_PIXELS, color=color, horizontal_flip=horizontal_flip);
     }
 }
 
@@ -145,7 +145,7 @@ draw_level_indicator :: (level: Level) {
 }
 
 draw_coin_indicator :: () {
-    draw_tile(30, .{0, PIXEL_HEIGHT - TILE_SIZE}, color=color_4);
+    draw_tile(30, .{0, PIXEL_HEIGHT - TILE_SIZE_IN_PIXELS}, color=color_4);
     use_text_shader();
     draw_text(tprint("%", player_state.coins), x=12, y=PIXEL_HEIGHT - 12, color=gray);
 }
@@ -160,7 +160,7 @@ draw_menu_notice :: () {
 //
 
 draw_editor_interface :: (level: Level) {
-    draw_tile(22, editor.cursor * TILE_SIZE, color=rainbow_color);
+    draw_tile(22, editor.cursor * TILE_SIZE_IN_PIXELS, color=rainbow_color);
 
     if editor.current_wind_stream_index != -1 {
         draw_wind_stream(level.wind_streams[editor.current_wind_stream_index], level, color=rainbow_color);
@@ -238,10 +238,28 @@ draw_colored_rectangle :: (x: int, y: int, width: int, height: int, color := whi
 draw_screen_quad :: (shader: Shader) {
     model := Matrix4_Identity;
 
-    translation_vector := Vector3.{-1, -1, 1};
-    translate(*model, translation_vector);
+    viewport_portion_of_the_screen_in_x := cast(float)viewport_height / window_height;
+    viewport_portion_of_the_screen_in_y := cast(float)viewport_width / window_width;
 
-    scale_vector := Vector3.{2, 2, 1};
+    print("% %\n", viewport_portion_of_the_screen_in_x, viewport_portion_of_the_screen_in_y);
+
+    // Scale
+    default_scale_x :: 2;
+    default_scale_y :: 2;
+
+    scale_x : float = default_scale_x * viewport_portion_of_the_screen_in_x;
+    scale_y : float = default_scale_y * viewport_portion_of_the_screen_in_y;
+    scale_vector := Vector3.{scale_y, scale_x, 1};
+
+    // Translate
+    default_translate_x :: -1;
+    default_translate_y :: -1;
+
+    translate_x : float = xx default_translate_x + scale_y / 2;
+    translate_y : float = xx default_translate_y;
+    translation_vector := Vector3.{translate_x, translate_y, 1};
+
+    translate(*model, translation_vector);
     scale(*model, scale_vector);
 
     set_mat4(shader, "model", model);
@@ -253,7 +271,7 @@ draw_screen_quad :: (shader: Shader) {
 render_framebuffer_to_screen :: () {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(0, 0, xx window_width, xx window_height);
-    glClearColor(1.0, 1.0, 0.0, 1.0);
+    glClearColor(0.0, 0.0, 0.0, 1.0);
     glClear(GL_COLOR_BUFFER_BIT);
 
     shader := rendering.quad_shader;

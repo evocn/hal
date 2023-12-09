@@ -71,32 +71,6 @@ neutralize :: (guy: *Guy) {
 
 //
 
-collision :: (a: Rect, solids: [] *Tile) -> bool {
-
-}
-
-move_x :: (guy: *Guy, amount: float, solids: [] *Tile) {
-    move := cast(int)amount;
-
-    if move == 0 then return;
-
-    while move != 0 {
-        if collision(guy.rect
-        { 
-            guy.position += 1;
-            move -= sign;
-        } 
-        else 
-        { 
-        //Hit a solid!
-        if (onCollide != null) 
-          onCollide(); 
-        break; 
-        } 
-        } 
-    }
-}
-
 update :: (guy: *Guy, dt: float) {
     guy.coyote_time = max(0.0, guy.coyote_time - dt);
 
@@ -223,7 +197,7 @@ resolve_player_inputs :: (guy : *Guy, level: Level, dt: float) {
     //   If it happens, then usually the movement simply stops. That's it.
 
     additional_velocity_from_outside_sources : Vector2;
-    additional_velocity_from_outside_sources += get_velocity_generated_from_wind_streams(guy.*, level.wind_streams);
+    //additional_velocity_from_outside_sources += get_velocity_generated_from_wind_streams(guy.*, level.wind_streams);
 
     guy.velocity += additional_velocity_from_outside_sources;
 
@@ -304,7 +278,7 @@ resolve_player_inputs :: (guy : *Guy, level: Level, dt: float) {
         guy.position.x = 0;
     }
 
-    right_boundary := cast(float)(level.columns.count * TILE_SIZE - TILE_SIZE);
+    right_boundary := cast(float)(level.columns.count * TILE_SIZE_IN_PIXELS - TILE_SIZE_IN_PIXELS);
     if guy.position.x >= right_boundary {
         guy.position.x = right_boundary;
     }
@@ -312,7 +286,7 @@ resolve_player_inputs :: (guy : *Guy, level: Level, dt: float) {
     guy.collision_box.position.x = cast(float)(guy.position.x + (GUY_COLLISION_BOX_WIDTH - guy.collision_box.size.x / 2));
     guy.collision_box.position.y = cast(float)(guy.position.y);
 
-    if guy.position.y <= -TILE_SIZE {
+    if guy.position.y <= -TILE_SIZE_IN_PIXELS {
         guy.dead = true;
     }
 

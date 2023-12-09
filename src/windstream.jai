@@ -16,8 +16,8 @@ Wind_Stream :: struct {
 
 
 guy_in_wind_stream :: (guy: Guy, stream: Wind_Stream) -> bool {
-    low_threshold := cast(float)stream.row_or_column_based_on_direction * TILE_SIZE;
-    high_threshold := low_threshold + TILE_SIZE;
+    low_threshold := cast(float)stream.row_or_column_based_on_direction * TILE_SIZE_IN_PIXELS;
+    high_threshold := low_threshold + TILE_SIZE_IN_PIXELS;
 
     if stream.direction == Up
         return guy.position.x >= low_threshold && guy.position.x < high_threshold;

@@ -278,8 +278,11 @@ handle_input :: () {
 
             case SDL_WINDOWEVENT;
                 if event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED {
-                    window_width  = event.window.data1;
                     window_height = event.window.data2;
+                    window_width = event.window.data1;
+
+                    viewport_height = window_height;
+                    viewport_width  = cast(s32)(viewport_height * DESIRED_ASPECT_RATIO);
                 }
         }
     }

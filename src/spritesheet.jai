@@ -41,8 +41,8 @@ draw_spritesheet :: (using sheet : Spritesheet, index: int, pixel : Pixel, horiz
     y_translation := pixel.y / cast(float)PIXEL_HEIGHT;
     translation_vector := Vector3.{x_translation, y_translation, 0};
 
-    x_scale := 1.0 / VIEWPORT_WIDTH;
-    y_scale := 1.0 / (VIEWPORT_HEIGHT);
+    x_scale := 1.0 / VIEWPORT_WIDTH_IN_TILES;
+    y_scale := 1.0 / (VIEWPORT_HEIGHT_IN_TILES);
     scale_vector := Vector3.{x_scale, y_scale, 1};
 
     translate(*model, translation_vector);

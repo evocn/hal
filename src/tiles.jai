@@ -52,16 +52,16 @@ set_tile :: (level: *Level, index: Tile_Index, catalogue_index : int) {
 
         // @TODO: Smaller hitboxes for spike things so that you don't rely on ordering to avoid them.
         case .FULL_BOX;
-        level.columns[col][row].collision_box = Rect.{.{xx (col * TILE_SIZE), xx (row * TILE_SIZE)}, .{TILE_SIZE, TILE_SIZE}};
+        level.columns[col][row].collision_box = Rect.{.{xx (col * TILE_SIZE_IN_PIXELS), xx (row * TILE_SIZE_IN_PIXELS)}, .{TILE_SIZE_IN_PIXELS, TILE_SIZE_IN_PIXELS}};
 
         case .TOP_HALF;
-        level.columns[col][row].collision_box = Rect.{.{xx (col * TILE_SIZE), xx (row * TILE_SIZE + TILE_SIZE / 2)}, .{TILE_SIZE, TILE_SIZE / 2}};
+        level.columns[col][row].collision_box = Rect.{.{xx (col * TILE_SIZE_IN_PIXELS), xx (row * TILE_SIZE_IN_PIXELS + TILE_SIZE_IN_PIXELS / 2)}, .{TILE_SIZE_IN_PIXELS, TILE_SIZE_IN_PIXELS / 2}};
 
         case .BOTTOM_HALF;
-        level.columns[col][row].collision_box = Rect.{.{xx (col * TILE_SIZE), xx (row * TILE_SIZE)}, .{TILE_SIZE, TILE_SIZE / 2}};
+        level.columns[col][row].collision_box = Rect.{.{xx (col * TILE_SIZE_IN_PIXELS), xx (row * TILE_SIZE_IN_PIXELS)}, .{TILE_SIZE_IN_PIXELS, TILE_SIZE_IN_PIXELS / 2}};
 
         case .CENTER;
-        level.columns[col][row].collision_box = Rect.{.{xx (col * TILE_SIZE + TILE_SIZE / 4), xx (row * TILE_SIZE + TILE_SIZE / 4)}, .{TILE_SIZE / 2, TILE_SIZE / 2}};
+        level.columns[col][row].collision_box = Rect.{.{xx (col * TILE_SIZE_IN_PIXELS + TILE_SIZE_IN_PIXELS / 4), xx (row * TILE_SIZE_IN_PIXELS + TILE_SIZE_IN_PIXELS / 4)}, .{TILE_SIZE_IN_PIXELS / 2, TILE_SIZE_IN_PIXELS / 2}};
     }
 }
 

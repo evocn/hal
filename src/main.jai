@@ -11,7 +11,7 @@ debug : bool;
 pool: Flat_Pool;
 
 main :: () {
-    setup();
+    setup_everything();
 
     guy : Guy;
     {

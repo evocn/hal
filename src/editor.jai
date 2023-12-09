@@ -28,22 +28,22 @@ resolve_editor_inputs :: (level: *Level, dt: float) {
 
     if button_was_just_pressed(.LEFT) {
         editor.cursor += .{-1, 0};
-        editor.cursor.x = clamp(editor.cursor.x, 0, VIEWPORT_WIDTH-1);
+        editor.cursor.x = clamp(editor.cursor.x, 0, VIEWPORT_WIDTH_IN_TILES-1);
     }
 
     if button_was_just_pressed(.RIGHT) {
         editor.cursor += .{1, 0};
-        editor.cursor.x = clamp(editor.cursor.x, 0, VIEWPORT_WIDTH-1);
+        editor.cursor.x = clamp(editor.cursor.x, 0, VIEWPORT_WIDTH_IN_TILES-1);
     }
 
     if button_was_just_pressed(.DOWN) {
         editor.cursor += .{0, -1};
-        editor.cursor.y = clamp(editor.cursor.y, 0, VIEWPORT_HEIGHT-1);
+        editor.cursor.y = clamp(editor.cursor.y, 0, VIEWPORT_HEIGHT_IN_TILES-1);
     }
 
     if button_was_just_pressed(.UP) {
         editor.cursor += .{0, 1};
-        editor.cursor.y = clamp(editor.cursor.y, 0, VIEWPORT_HEIGHT-1);
+        editor.cursor.y = clamp(editor.cursor.y, 0, VIEWPORT_HEIGHT_IN_TILES-1);
     }
 
     if button_was_just_pressed(.A) {
@@ -184,7 +184,9 @@ level_editor :: (level: *Level, guy: *Guy) {
 
                     ImGui.NewLine();
 
-                    wind_stream_editor(level);
+                    if editor.current_wind_stream_index != -1 {
+                        wind_stream_editor(level);
+                    }
                 }
 
                 ImGui.EndTabItem();

@@ -152,6 +152,9 @@ go_to_settings :: () {
 // Fullscreen stuff
 
 go_fullscreen :: () {
+    old_window_width = window_width;
+    old_window_height = window_height;
+
     display_mode : SDL_DisplayMode;
     SDL_GetDesktopDisplayMode(0, *display_mode);
 
@@ -169,8 +172,8 @@ go_windowed :: () {
 
     SDL_SetWindowResizable(window, SDL_TRUE);
     SDL_SetWindowBordered(window, SDL_TRUE);
-    SDL_SetWindowSize(window, WINDOW_WIDTH, WINDOW_HEIGHT);
-    SDL_SetWindowPosition(window, display_mode.w / 2 - WINDOW_WIDTH / 2, display_mode.h / 2 - WINDOW_HEIGHT / 2);
+    SDL_SetWindowSize(window, old_window_width, old_window_height);
+    SDL_SetWindowPosition(window, display_mode.w / 2 - old_window_width / 2, display_mode.h / 2 - old_window_height / 2);
     SDL_SetWindowResizable(window, SDL_FALSE);
 
     SDL_GetWindowDisplayMode(window, *display_mode);

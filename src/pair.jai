@@ -15,7 +15,7 @@ operator *  :: (a: Pair, m: int)   -> Pair { return Pair.{a.x * m, a.y * m}; }
 operator *  :: (a: Pair, f: float) -> Pair { return Pair.{xx (a.x * f), xx (a.y * f)}; }
 operator /  :: (a: Pair, d: int)   -> Pair { return Pair.{a.x / d, a.y / d}; }
 
-Position :: Vec;
+Position :: Pair;
 Pixel :: Pair;
 Tile_Index :: Pair;
 Direction :: Pair;

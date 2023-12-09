@@ -11,7 +11,7 @@ simulate :: (guy: *Guy, level: *Level, dt: float) {
             update(guy, dt);
 
             // Super Hacky. @TODO: Clean this up.
-            if collision(guy.collision_box, Rect.{.{xx (TILE_SIZE * level.end.x) + 7.0, xx (TILE_SIZE * level.end.y) + 7.0}, .{2, 2}}) {
+            if collision(guy.collision_box, Rect.{.{xx (TILE_SIZE_IN_PIXELS * level.end.x) + 7.0, xx (TILE_SIZE_IN_PIXELS * level.end.y) + 7.0}, .{2, 2}}) {
                 load_and_initialize_level(level, guy, level.next_level_name);
             }
 
