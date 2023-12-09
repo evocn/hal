@@ -241,8 +241,6 @@ draw_screen_quad :: (shader: Shader) {
     viewport_portion_of_the_screen_in_x := cast(float)viewport_height / window_height;
     viewport_portion_of_the_screen_in_y := cast(float)viewport_width / window_width;
 
-    print("% %\n", viewport_portion_of_the_screen_in_x, viewport_portion_of_the_screen_in_y);
-
     // Scale
     default_scale_x :: 2;
     default_scale_y :: 2;
@@ -255,7 +253,9 @@ draw_screen_quad :: (shader: Shader) {
     default_translate_x :: -1;
     default_translate_y :: -1;
 
-    translate_x : float = xx default_translate_x + scale_y / 2;
+    print("%\n", viewport_portion_of_the_screen_in_y);
+
+    translate_x : float = default_translate_x * viewport_portion_of_the_screen_in_y;
     translate_y : float = xx default_translate_y;
     translation_vector := Vector3.{translate_x, translate_y, 1};
 

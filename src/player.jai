@@ -195,6 +195,8 @@ resolve_player_inputs :: (guy : *Guy, level: Level, dt: float) {
     // * Movement happens in one axis at a time, one pixel at a time.
     // * MoveX is given an amount in pixels, and it loops one pixel at a time, checking for collisions.
     //   If it happens, then usually the movement simply stops. That's it.
+    // Let's do it!
+
 
     additional_velocity_from_outside_sources : Vector2;
     //additional_velocity_from_outside_sources += get_velocity_generated_from_wind_streams(guy.*, level.wind_streams);
