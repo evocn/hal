@@ -1,5 +1,8 @@
-**.obj
-**.lib
+.obj
+.lib
+*.exe
+*.pdb
+.pdb
 build/
 .build/
 tags
