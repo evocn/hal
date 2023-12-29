@@ -9,7 +9,7 @@ save_tweaks_file :: (file_name : string) {
 
     append(*builder, "# Tweaks file\n\n");
 
-    print_to_builder(*builder, "level %\n", current_level);
+    print_to_builder(*builder, "level %\n", current_level_index);
 
     print_to_builder(*builder, "fullscreen %\n", fullscreen);
 
@@ -42,8 +42,7 @@ load_tweaks_file_and_apply_results :: (file_name : string) -> file_exists: bool 
         successfully_parsed : bool;
         if left == {
             case "level";
-                current_level = copy_string(right);
-                successfully_parsed = true;
+                current_level_index, successfully_parsed = parse_int(*right);
 
             case "fullscreen";
                 fullscreen, successfully_parsed = parse_bool(*right);
@@ -78,7 +77,7 @@ apply_default_settings :: () {
     DEFAULT_MUSIC_VOLUME :: 1.0;
     DEFAULT_AMBIENCE_VOLUME :: 1.0;
     fullscreen = false;
-    current_level = "0";
+    current_level_index = 0;
 
     set_screen_mode_according_to_fullscreen_variable();
 

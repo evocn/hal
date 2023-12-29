@@ -3,90 +3,8 @@
 // Alex Hartford
 // June 2023
 
-VERSION :: 1;
-
-DEBUG_MEMORY :: true;
-
-//
-
-VIEWPORT_HEIGHT_IN_TILES :: 18;
-VIEWPORT_WIDTH_IN_TILES  :: 16;
-DESIRED_ASPECT_RATIO : float : cast(float)VIEWPORT_WIDTH_IN_TILES / VIEWPORT_HEIGHT_IN_TILES;
-
-TILE_SIZE_IN_PIXELS :: 16;
-
-PIXEL_WIDTH :: VIEWPORT_WIDTH_IN_TILES * TILE_SIZE_IN_PIXELS;
-PIXEL_HEIGHT :: VIEWPORT_HEIGHT_IN_TILES * TILE_SIZE_IN_PIXELS;
-
-DEFAULT_WINDOW_HEIGHT :: 900;
-DEFAULT_WINDOW_WIDTH  : s32 : cast(s32)(DEFAULT_WINDOW_HEIGHT * DESIRED_ASPECT_RATIO);
-
-
-//
-
-forever_pool: Flat_Pool;
-
-window          : *SDL_Window;
-gl_context      : *SDL_GLContext;
-imgui_context   : *ImGui.ImGuiContext;
-
-rendering : struct {
-    using shaders : struct {
-        basic_shader    : Shader;
-        tile_shader     : Shader;
-        text_shader     : Shader;
-        quad_shader     : Shader;
-        sprite_shader   : Shader;
-    }
-
-    quad : Quad;
-
-    spritesheet : Spritesheet;
-}
-main_font : Font;
-body_font : Font;
-
-menu : Menu;
-
-//
-
-window_height : s32 = DEFAULT_WINDOW_HEIGHT;
-window_width  : s32 = DEFAULT_WINDOW_WIDTH;
-
-viewport_height: s32 = DEFAULT_WINDOW_HEIGHT;
-viewport_width : s32 = cast(s32)(DEFAULT_WINDOW_HEIGHT * DESIRED_ASPECT_RATIO);
-
-fullscreen : bool;
-
-old_window_width  : s32 = DEFAULT_WINDOW_WIDTH;
-old_window_height : s32 = DEFAULT_WINDOW_HEIGHT;
-
-//
-
-running := true;
-current_level : string;
-
-//
-//
-//
-
-assets_path     :: "assets";
-fonts_path      :: "assets/fonts";
-music_path      :: "assets/audio/music";
-ambience_path   :: "assets/audio/ambiences";
-sfx_path        :: "assets/audio/sfx";
-
-boards_path     :: "boards";
-tweaks_path     :: ".";
-
-//
-// Setup Function //////////////////////////////////////////////////////////////
-//
-
 setup_everything :: () {
     set_working_directory_to_base_folder();
-
-    set_print_style_in_context();
 
     init_sdl();
     init_gl();
@@ -130,8 +48,9 @@ init_sdl :: () {
     SDL_SetWindowResizable(window, xx false);
 
     // Settings
-    SDL_ShowCursor(0);
-    SDL_SetRelativeMouseMode(SDL_TRUE);
+    /*
+    deactivate_mouse();
+    */
 
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, xx SDL_GL_CONTEXT_PROFILE_CORE);
 }
@@ -159,10 +78,14 @@ init_gl :: () {
 
 init_imgui :: () {
     imgui_context = ImGui.CreateContext();
+
+    io := ImGui.GetIO();
+    io.Fonts.AddFontFromFileTTF(io.Fonts, "assets/fonts/verdanab.ttf", 50.0, null, io.Fonts.GetGlyphRangesDefault(io.Fonts));
+
     ImGui_ImplSdl_Init(window);
 
-    ImGui.StyleColorsClassic();
-    //ImGui.StyleColorsLight();
+    //ImGui.StyleColorsClassic();
+    ImGui.StyleColorsLight();
 }
 
 
@@ -331,10 +254,6 @@ set_working_directory_to_base_folder :: () {
 	set_working_directory(tprint("%/../", executable_path));
 }
 
-set_print_style_in_context :: () {
-    context.print_style.default_format_float = FormatFloat.{trailing_width=2};
-}
-
 deactivate_mouse :: () {
     SDL_ShowCursor(0);
     SDL_SetRelativeMouseMode(SDL_TRUE);
@@ -354,8 +273,6 @@ activate_mouse :: () {
 // This is just here so we can clean house and see the real leaks if they happen when we are debugging memory.
 cleanup_for_shutdown :: () {
     array_reset(*menu.elements);
-
-    free(current_level.data);
 
     // Audio Cleanup
     {

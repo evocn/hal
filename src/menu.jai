@@ -48,38 +48,36 @@ Menu :: struct {
     element_index : int;
 }
 
-resolve_menu_inputs :: (using menu: *Menu) {
-    using input;
-
-    if button_was_just_pressed(.START) || button_was_just_pressed(.B) {
+resolve_menu_inputs :: (input: Input, using menu: *Menu) {
+    if button_was_just_pressed(input, .START) || button_was_just_pressed(input, .B) {
         return_to_prior_scene();
         play_sfx("click");
     }
 
-    if button_was_just_pressed(.UP) {
+    if button_was_just_pressed(input, .UP) {
         element_index -= 1;
         if element_index < 0 {
             element_index += 1;
         }
         play_sfx("click");
     }
-    if button_was_just_pressed(.DOWN) {
+    if button_was_just_pressed(input, .DOWN) {
         element_index += 1;
         if element_index >= elements.count {
             element_index -= 1;
         }
         play_sfx("click");
     }
-    if button_was_just_pressed(.LEFT) {
+    if button_was_just_pressed(input, .LEFT) {
         nudge_menu_element(elements[element_index], left=true);
         play_sfx("click");
     }
-    if button_was_just_pressed(.RIGHT) {
+    if button_was_just_pressed(input, .RIGHT) {
         nudge_menu_element(elements[element_index]);
         play_sfx("click");
     }
 
-    if button_was_just_pressed(.A) {
+    if button_was_just_pressed(input, .A) {
         toggle_menu_element(elements[element_index]);
     }
 }

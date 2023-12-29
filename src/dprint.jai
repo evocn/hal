@@ -15,11 +15,17 @@ dprint :: (s: string) {
     array_add(*debug_lines, s);
 }
 
-draw_debug_lines :: (color := gray) {
+draw_debug_lines :: (color := red) {
     use_text_shader();
 
     for debug_lines {
-        draw_text(it, y = PIXEL_HEIGHT - (10 * (1 + it_index)), color=color);
+        draw_text(
+            it, 
+            x = PIXEL_WIDTH / 2, 
+            y = PIXEL_HEIGHT - (10 * (1 + it_index)), 
+            color=color, 
+            alignment = .CENTER
+        );
     }
 }
 
@@ -42,7 +48,13 @@ draw_debug_messages :: (color := gray) {
     use_text_shader();
 
     for * debug_messages {
-        draw_text_centered(it.s, y = PIXEL_HEIGHT - (10 * (1 + it_index)), color=color);
+        draw_text(
+            it.s,
+            x = PIXEL_WIDTH / 2,
+            y = PIXEL_HEIGHT - (10 * (1 + it_index)),
+            color=color,
+            alignment = .CENTER
+        );
 
         // Maybe remove it!
         it.frames -= 1;

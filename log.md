@@ -4,8 +4,10 @@ Log
 
 todo
 ====
-Engine
-    Gameplay Events
+    NPCs and encouragement
+    Sounds
+    Title Screen
+    1-bit fade?
 
 done
 ====
@@ -23,14 +25,7 @@ Mechanics
     Danger
         Moving Enemies
         Game Over
-        Health?
-        Temporary Invulnerability?
-    Wind Streams
-    Ladders
-    Moving Camera
-    Water
     Turtle Guy?
-    Variety of map types and sizes of the screen / viewport?
     Springs / Trampolines?
     Moving Platforms
     On/Off disappearing platforms
@@ -38,5 +33,4 @@ Mechanics
 miscellaneous
 =============
 Art
-    Turtle Guy?
     Colors?

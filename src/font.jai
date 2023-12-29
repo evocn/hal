@@ -7,32 +7,13 @@
 // Set up their glyph textures, and simply draw text with them.
 // Now supports alignment!
 
-draw_text :: (text: string, x: int, y: int, color := white)
+draw_text :: (text: string, x: int, y: int, color := white, alignment := Alignment.LEFT, progress := -1)
 {
     shader := rendering.text_shader;
 
     set_vec4(shader, "color", color);
-    render_text(main_font, text, cast(float)x, cast(float)y, alignment = .LEFT);
+    render_text(main_font, text, cast(float)x, cast(float)y, alignment = alignment, progress = progress);
 }
-draw_text :: (text: string, y: int, color := white) { draw_text(text, 0, y, color); }
-
-draw_text_centered :: (text: string, x: int, y: int, color := white)
-{
-    shader := rendering.text_shader;
-
-    set_vec4(shader, "color", color);
-    render_text(main_font, text, cast(float)x, cast(float)y, alignment = .CENTER);
-}
-draw_text_centered :: (text: string, y: int, color := white) { draw_text_centered(text, PIXEL_WIDTH / 2, y, color); }
-
-draw_text_right :: (text: string, x: int, y: int, color := white)
-{
-    shader := rendering.text_shader;
-
-    set_vec4(shader, "color", color);
-    render_text(main_font, text, cast(float)x, cast(float)y, alignment = .RIGHT);
-}
-draw_text_right :: (text: string, y: int, color := white) { draw_text_right(text, PIXEL_WIDTH, y, color); }
 
 //
 //
@@ -57,7 +38,7 @@ Alignment :: enum {
     RIGHT;
 }
 
-render_text :: (font : Font, text : string, x : float, y : float, progress := -1, $alignment := Alignment.CENTER)
+render_text :: (font : Font, text : string, x : float, y : float, alignment : Alignment, progress : int)
 {
     glActiveTexture(GL_TEXTURE0);
     defer glBindTexture(GL_TEXTURE_2D, 0);
@@ -66,7 +47,7 @@ render_text :: (font : Font, text : string, x : float, y : float, progress := -1
     defer glBindVertexArray(0);
 
     total_width : float;
-    #if alignment == .CENTER || alignment == .RIGHT {
+    if alignment == .CENTER || alignment == .RIGHT {
         for cast([] u8)text {
             glyph, found := table_find(*font.characters, it);
             assert(found);
@@ -85,7 +66,7 @@ render_text :: (font : Font, text : string, x : float, y : float, progress := -1
         assert(found);
 
         xpos : float;
-        #if alignment == .CENTER
+        if alignment == .CENTER
             xpos = floor(x - (total_width / 2.0) + glyph.bearing.x);
         else if alignment == .RIGHT
             xpos = floor(x - total_width + glyph.bearing.x - 1);

@@ -3,19 +3,7 @@
 // Alex Hartford
 // September 2023
 
-render_plus_editor :: (guy: *Guy, level: *Level) {
-    render(guy.*, level.*);
-
-    // Draw extra things on top of the framebuffer.
-    if current_scene == .EDITOR {
-        update_and_draw_editor(level, guy);
-        ImGui_ImplSdl_RenderDrawLists(ImGui.GetDrawData());
-    }
-
-    SDL_GL_SwapWindow(window);
-}
-
-render :: (guy: Guy, level: Level) {
+render :: (player: Player, level: Level) {
     {
         // Render all this to the framebuffer.
         glBindFramebuffer(GL_FRAMEBUFFER, fbo);
@@ -25,17 +13,18 @@ render :: (guy: Guy, level: Level) {
 
         if #complete current_scene == {
             case .GAME;
-                draw_game_state(guy, level);
-                draw_user_interface(guy, level);
+                draw_game_state(player, level);
+
+                draw_user_interface(level);
+
                 if debug {
                     draw_debug_info();
                 }
-
                 draw_debug_messages();
 
             case .EDITOR;
-                draw_game_state(guy, level);
-                draw_user_interface(guy, level);
+                draw_game_state(player, level);
+                draw_user_interface(level);
                 if debug {
                     draw_debug_info();
                 }
@@ -53,87 +42,69 @@ render :: (guy: Guy, level: Level) {
     render_framebuffer_to_screen();
 }
 
-draw_game_state :: (guy: Guy, level: Level) {
-    for tiles, col: level.columns {
-        for tile, row: tiles {
-            draw_tile(tile.background, .{col, row} * TILE_SIZE_IN_PIXELS, color=tile.color);
-        }
+draw_game_state :: (player: Player, level: Level) {
+    for tile, index : level.tiles {
+        col := index % level.width;
+        row := index / level.width;
+        draw_tile(tile.properties.sprite, .{col, row} * TILE_SIZE_IN_PIXELS, color=tile.color);
     }
 
-    for level.wind_streams {
-        draw_wind_stream(it, level, color=gray);
-    }
-
-    if debug {
-        tiles := gather_all_tiles_with_collision_boxes(level);
-        for tile: tiles {
-            collision_box_color := gray;
-            if (tile.properties & .KILL) {
-                collision_box_color = color_2;
-            }
-            draw(tile.collision_box, collision_box_color);
-        }
-        draw(guy.collision_box, gray);
+    for platform: level.platforms {
+        draw(platform.solid.collider);
     }
 
     draw_level_start(level.start);
     draw_level_end(level.end);
 
-    draw_guy(guy);
-}
+    {
+        // NPC Sprites
+        for npc: level.npcs {
+            draw_tile(npc.sprite, npc.tile * TILE_SIZE_IN_PIXELS, color=npc.color);
+        }
 
-draw_guy :: (guy: Guy) {
-    draw_tile(guy.frame, convert_to_pixel(guy.position), color = color_4, horizontal_flip = (guy.orientation == Left));
-}
+        use_text_shader();
 
-draw_level_start :: (tile_index: Tile_Index) {
-    draw_tile(18, tile_index * TILE_SIZE_IN_PIXELS, color=gray);
-}
-
-draw_level_end :: (tile_index: Tile_Index) {
-    draw_tile(17, tile_index * TILE_SIZE_IN_PIXELS, color=color_1);
-}
-
-//
-
-draw_wind_stream_tile :: (tile_index : Tile_Index, horizontal_flip : bool, vertical_flip : bool, color : Color) {
-    if vertical_flip {
-        draw_tile(20, tile_index * TILE_SIZE_IN_PIXELS, color=color, horizontal_flip=horizontal_flip);
-    }
-    else {
-        draw_tile(21, tile_index * TILE_SIZE_IN_PIXELS, color=color, horizontal_flip=horizontal_flip);
-    }
-}
-
-draw_wind_stream :: (wind_stream: Wind_Stream, level: Level, color := gray) {
-    level_width := level.columns[0].count;
-    level_height := LEVEL_HEIGHT;
-    if wind_stream.direction == Left {
-        for 0..level_width-1 {
-            draw_wind_stream_tile(.{it, wind_stream.row_or_column_based_on_direction}, true, false, color=color);
+        // NPC Speech
+        for npc: level.npcs {
+            draw_text(
+                npc.speech,
+                xx ((npc.tile.x + 0.5) * cast(float)TILE_SIZE_IN_PIXELS),
+                xx ((npc.tile.y + 1.0) * cast(float)TILE_SIZE_IN_PIXELS),
+                color=npc.color,
+                alignment = .CENTER,
+                progress = cast(int)(npc.speech_progress * npc.speech.count),
+            );
         }
     }
-    else if wind_stream.direction == Right {
-        for 0..level_width-1 {
-            draw_wind_stream_tile(.{it, wind_stream.row_or_column_based_on_direction}, false, false, color=color);
-        }
-    }
-    else if wind_stream.direction == Up {
-        for 0..level_height-1 {
-            draw_wind_stream_tile(.{wind_stream.row_or_column_based_on_direction, it}, false, true, color=color);
-        }
-    }
-    else {
-        log_error("What the heck? That's not a cardinal direction!\n");
-        assert(false);
+
+    {
+        use_tile_shader();
+        draw_player(player);
     }
 }
-    
+
+draw_player :: (player: Player) {
+    draw_tile(
+        player.sprite, 
+        .{player.x - 4, player.y},
+        color = yellow, 
+        horizontal_flip = player.orientation == Left
+    );
+}
+
+draw_level_start :: (tile_position: Pair) {
+    draw_tile(18, tile_position * TILE_SIZE_IN_PIXELS, color = gray);
+}
+
+draw_level_end :: (tile_position: Pair) {
+    draw_tile(17, tile_position * TILE_SIZE_IN_PIXELS, color = purple);
+}
+
 //
 // User Interface //////////////////////////////////////////////////////////////
 //
 
-draw_user_interface :: (guy: Guy, level: Level) {
+draw_user_interface :: (level: Level) {
     draw_level_indicator(level);
     draw_coin_indicator();
     //draw_menu_notice();
@@ -141,18 +112,18 @@ draw_user_interface :: (guy: Guy, level: Level) {
 
 draw_level_indicator :: (level: Level) {
     use_text_shader();
-    draw_text_right(tprint("Level %", level.shortname), y=PIXEL_HEIGHT - 10, color=gray);
+    draw_text(tprint("Level %", level.name), x = PIXEL_WIDTH - 10, y = PIXEL_HEIGHT - 10, color = gray, alignment = .RIGHT);
 }
 
 draw_coin_indicator :: () {
-    draw_tile(30, .{0, PIXEL_HEIGHT - TILE_SIZE_IN_PIXELS}, color=color_4);
+    draw_tile(30, .{0, PIXEL_HEIGHT - TILE_SIZE_IN_PIXELS}, color = yellow);
     use_text_shader();
-    draw_text(tprint("%", player_state.coins), x=12, y=PIXEL_HEIGHT - 12, color=gray);
+    draw_text(tprint("%", game_state.coins), x = 12, y = PIXEL_HEIGHT - 12, color = gray);
 }
 
 draw_menu_notice :: () {
     use_text_shader();
-    draw_text_right("Esc - Menu", y=PIXEL_HEIGHT - 10, color=gray);
+    draw_text("Esc - Menu", x = 0, y = PIXEL_HEIGHT - 10, color = gray, alignment = .RIGHT);
 }
 
 //
@@ -160,10 +131,18 @@ draw_menu_notice :: () {
 //
 
 draw_editor_interface :: (level: Level) {
-    draw_tile(22, editor.cursor * TILE_SIZE_IN_PIXELS, color=rainbow_color);
+    draw_tile(22, editor.cursor * TILE_SIZE_IN_PIXELS, color = rainbow_color);
 
-    if editor.current_wind_stream_index != -1 {
-        draw_wind_stream(level.wind_streams[editor.current_wind_stream_index], level, color=rainbow_color);
+    shader := use_basic_shader();
+        set_mat4(shader, "model", Matrix4_Identity);
+        set_vec4(shader, "color", rainbow_color);
+
+    if editor.current_platform_index != -1 {
+        platform := level.platforms[editor.current_platform_index];
+
+        line: Line;
+        get_line_ready_for_drawing_with_opengl(*line, platform.points[0], platform.points[1]);
+        draw_line(line);
     }
 }
 
@@ -177,7 +156,7 @@ render_menu :: (using menu: Menu) {
     k := 10;
 
     for elements {
-        draw_menu_element(it, PIXEL_HEIGHT - (it_index + 1) * k, color=color_1);
+        draw_menu_element(it, PIXEL_HEIGHT - (it_index + 1) * k, color = purple);
     }
 
     // Draw selected element over it.
@@ -209,10 +188,10 @@ draw_controls :: () {
     k := 10;
     base := 2;
 
-    draw_text_right("Shift : Sprint", y=k * 0 + base, color=gray);
-    draw_text_right("Space : Jump and Glide", y=k * 1 + base, color=gray);
-    draw_text_right("Move with A/D", y=k * 2 + base, color=gray);
-    draw_text_right("Controls", y=k * 3 + base, color=color_2);
+    draw_text("Shift : Sprint",         x = 0, y = k * 0 + base, color = gray, alignment = .RIGHT);
+    draw_text("Space : Jump and Glide", x = 0, y = k * 1 + base, color = gray, alignment = .RIGHT);
+    draw_text("Move with A/D",          x = 0, y = k * 2 + base, color = gray, alignment = .RIGHT);
+    draw_text("Controls",               x = 0, y = k * 3 + base, color = red, alignment = .RIGHT);
 }
 
 //
@@ -252,8 +231,6 @@ draw_screen_quad :: (shader: Shader) {
     // Translate
     default_translate_x :: -1;
     default_translate_y :: -1;
-
-    print("%\n", viewport_portion_of_the_screen_in_y);
 
     translate_x : float = default_translate_x * viewport_portion_of_the_screen_in_y;
     translate_y : float = xx default_translate_y;

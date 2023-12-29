@@ -22,8 +22,8 @@ dont_check_for_gl_errors_anymore : bool;
 // Parsing
 //
 
-parse_int_pair :: (handler: *Text_File_Handler) -> Pixel, success: bool {
-    result : Pixel;
+parse_int_pair :: (handler: *Text_File_Handler) -> Pair, success: bool {
+    result : Pair;
     line, found := consume_next_line(handler);
     if !found return result, false;
 
@@ -34,3 +34,4 @@ parse_int_pair :: (handler: *Text_File_Handler) -> Pixel, success: bool {
 
     return result, true;
 }
+

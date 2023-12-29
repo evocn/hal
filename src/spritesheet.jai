@@ -16,12 +16,12 @@ make_spritesheet :: (using spritesheet : *Spritesheet, full_path : string, tile_
     return success;
 }
 
-draw_tile :: (index: int, pixel : Pixel, color := white, horizontal_flip := false) {
+draw_tile :: (index: int, pair : Pair, color := white, horizontal_flip := false) {
     use_tile_shader();
-    draw_spritesheet(rendering.spritesheet, index, pixel, color_override=color, horizontal_flip=horizontal_flip);
+    draw_spritesheet(rendering.spritesheet, index, pair, color_override=color, horizontal_flip=horizontal_flip);
 }
 
-draw_spritesheet :: (using sheet : Spritesheet, index: int, pixel : Pixel, horizontal_flip := false, use_color_override := true, color_override := black) {
+draw_spritesheet :: (using sheet : Spritesheet, index: int, pair : Pair, horizontal_flip := false, use_color_override := true, color_override := black) {
     bind(sheet.texture, 0);
     shader := rendering.tile_shader;
 
@@ -37,8 +37,8 @@ draw_spritesheet :: (using sheet : Spritesheet, index: int, pixel : Pixel, horiz
     set_vec2(shader, "relative_sheet_scale", relative_sheet_scale);
 
     model := Matrix4_Identity;
-    x_translation := pixel.x / cast(float)PIXEL_WIDTH;
-    y_translation := pixel.y / cast(float)PIXEL_HEIGHT;
+    x_translation := pair.x / cast(float)PIXEL_WIDTH;
+    y_translation := pair.y / cast(float)PIXEL_HEIGHT;
     translation_vector := Vector3.{x_translation, y_translation, 0};
 
     x_scale := 1.0 / VIEWPORT_WIDTH_IN_TILES;

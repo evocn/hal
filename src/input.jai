@@ -3,11 +3,9 @@
 // Alex Hartford
 // June 2023
 
-reset_input :: () {
-    using input;
-
-    just_pressed = 0;
-    held = 0;
+reset_input :: (input: *Input) {
+    input.just_pressed = 0;
+    input.held = 0;
 }
 
 Buttons :: enum_flags u8 {
@@ -21,16 +19,16 @@ Buttons :: enum_flags u8 {
     SELECT;
 }
 
-input : struct {
+Input :: struct {
     just_pressed : Buttons;
     held : Buttons;
 }
 
-button_was_just_pressed :: (b: Buttons) -> bool {
+button_was_just_pressed :: (input: Input, b: Buttons) -> bool {
     return xx (b & input.just_pressed);
 }
 
-button_is_held :: (b: Buttons) -> bool {
+button_is_held :: (input: Input, b: Buttons) -> bool {
     return xx (b & input.held);
 }
 
@@ -41,7 +39,7 @@ JOYSTICK_DEAD_ZONE :: 8000;
 //
 //
 
-handle_input :: () {
+handle_input :: (input: *Input) {
     // Reset pressed buttons
     {
         input.just_pressed = 0;
@@ -137,25 +135,11 @@ handle_input :: () {
                             case .GAME;
                             switch_scene(.EDITOR);
                             reset_editor_state();
-                            activate_mouse();
+                            //activate_mouse();
 
                             case .EDITOR;
                             switch_scene(.GAME);
-                            deactivate_mouse();
-                        }
-                    }
-
-                    if current_scene == .EDITOR {
-                        if event.key.keysym.sym == SDLK_z {
-                            editor.should_save = true;
-                        }
-
-                        if event.key.keysym.sym == SDLK_x {
-                            editor.should_reload = true;
-                        }
-
-                        if event.key.keysym.sym == SDLK_c {
-                            editor.should_make_new_level = true;
+                            //deactivate_mouse();
                         }
                     }
 
